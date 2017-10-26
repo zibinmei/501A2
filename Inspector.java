@@ -1,4 +1,5 @@
 import java.lang.reflect.*;
+import java.lang.reflect.Field;
 
 public class Inspector {
 	Object object =  null;
@@ -35,6 +36,15 @@ public class Inspector {
 			System.out.println("\tmodifiers: "+c.getModifiers());
 			
 		}
+		
+		Field[] fields= classObject.getFields();
+		System.out.println("Fields: ");
+		for (Field f: fields) {
+			System.out.println("\t<"+f.getName()+">");
+			System.out.println("\ttype: "+f.getType().toString());
+			System.out.println("\tmodifiers: "+f.getModifiers());
+		}
+				
 		
 		
 	}
