@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class Inspector {
 	private List<Class> inspected = new ArrayList<>();
 	private List<Object> Queue = new ArrayList<>();
-
+	static final boolean CHECK_PRIMITIVE =false;
 	private Object object =  null;
 	private Class classObject =null;
 	
@@ -54,9 +54,9 @@ public class Inspector {
 		for (Method m : methods) {
 			System.out.println("\t<"+m.getName()+">");
 			System.out.print("\t\texception thrown: ");
-			arrayprinter(m.getExceptionTypes());
+			return_handler(m.getExceptionTypes());
 			System.out.print("\t\tparameter types: ");
-			arrayprinter(m.getParameterTypes());
+			return_handler(m.getParameterTypes());
 			System.out.println("\t\treturn type: "+m.getReturnType().getSimpleName());
 			System.out.println("\t\tmodifiers: "+Modifier.toString(m.getModifiers()));
 		}
@@ -69,7 +69,7 @@ public class Inspector {
 		for (Constructor c : construtors) {
 			System.out.println("\t<"+c.getName()+">");
 			System.out.print("\t\tparameter types: ");
-			arrayprinter(c.getParameterTypes());
+			return_handler(c.getParameterTypes());
 			System.out.println("\t\tmodifiers: "+Modifier.toString(c.getModifiers()));
 			
 		}
@@ -85,25 +85,26 @@ public class Inspector {
 			System.out.println("\t\tmodifiers: "+Modifier.toString(f.getModifiers()));
 			//field values 
 			if (f.get(object) != null) {
+				//print out array info
 				if (f.getType().isArray()) {
-					//print out array info
 					System.out.println("\t\tlength: "+Array.getLength(f.get(object)));
 					System.out.print("\t\tvalue: ");
 					display_fieldArray(f.get(object));
-					//reference value 
-					if (recursive && f.get(object).getClass().getComponentType().isPrimitive()==false)
-						Queue.add(f.get(object));
+					//reference value && recursive
+					if (recursive)
+						Queue.add(f.get(object));					
 					else 
 						System.out.println("\t\treference value: "+f.get(object).getClass().getSimpleName()+", "+f.get(object).getClass().hashCode());
 			
-//							display_fieldArray(f.get(object),f.getType());
 				}
+				
+				//print out info for non array item
 				else {
 					System.out.println("\t\tvalue: "+f.get(object).toString());
-					//reference value 
-					if (recursive && f.getType().isPrimitive() ==false)
-						Queue.add(f.get(object));
-					else 
+					//reference value && recursive
+					if (recursive)
+						recursiveHelper(f.get(object));
+					else
 						System.out.println("\t\treference value: "+f.get(object).getClass().getSimpleName()+", "+f.get(object).getClass().hashCode());
 			
 				}
@@ -113,7 +114,20 @@ public class Inspector {
 			}
 		}
 	}
-	
+	private void recursiveHelper(Object obj) {
+		if (obj != null) {
+			if(obj.getClass().isPrimitive())
+				Queue.add(object);
+			else if(obj.getClass().isArray()) {
+				if (Array.get(obj, 0)!=null && obj.getClass().getComponentType().isPrimitive() == CHECK_PRIMITIVE)
+					Queue.add(Array.get(obj,0));
+				else;
+				
+			}
+		}
+			
+		else;
+	}
 
 	private void display_fieldArray(Object arr) {
 		int current_index =0;
@@ -133,7 +147,7 @@ public class Inspector {
 		System.out.println("}");
 	}
 	
-	private void arrayprinter(Class[] array) {
+	private void return_handler(Class[] array) {
 		int current_index =0;
 		System.out.print("(");
 		for (Class e: array) {
