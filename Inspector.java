@@ -50,6 +50,26 @@ public class Inspector {
 			System.out.println("\t\tmodifiers: "+Modifier.toString(c.getModifiers()));
 			
 		}
+		getFields();
+
+		
+		
+		inspected.add(classObject);
+		//run inspect on the queue
+		if (Queue.isEmpty() == false) {
+			Object o= Queue.get(0);
+			Queue.remove(0);
+			if(inspected.contains(o.getClass()) == false) {
+				System.out.println("######################################");
+				inspect(o,recursive);
+			}
+		}
+			
+	
+		
+	}
+	
+	private void getFields() {
 		//print out all Fields
 		Field[] fields= classObject.getDeclaredFields();
 		
@@ -62,47 +82,39 @@ public class Inspector {
 			if (f.get(object) != null) {
 				if (f.getType().isArray()) {
 
-					System.out.println("\t\tlength: "+Array.getLength(object));
-					System.out.print("\t\tvalue: ");
-//					display_fieldArray(f.get(object),f.getType());
-				}
-				else
+					System.out.println("\t\tlength: "+Array.getLength(f.get(object)));
 					System.out.println("\t\tvalue: "+f.get(object).toString());
-				
+					//reference value 
+					if (recursive && f.get(obj).getClass().getComponentType().isPrimitive()==false)
+						Queue.add(f.get(object));
+					else 
+						System.out.println("\t\treference value: "+f.get(object).getClass().getSimpleName()+", "+f.get(object).getClass().hashCode());
+			
+//							display_fieldArray(f.get(object),f.getType());
+				}
+				else {
+					System.out.println("\t\tvalue: "+f.get(object).toString());
+					//reference value 
+					if (recursive && f.getType().isPrimitive() ==false)
+						Queue.add(f.get(object));
+					else 
+						System.out.println("\t\treference value: "+f.get(object).getClass().getSimpleName()+", "+f.get(object).getClass().hashCode());
+			
+				}
 			}
 			else {
 				System.out.println("\t\tvalue: NULL");
-
 			}
-			
-//			if (recursive == false ){
-//				System.out.println("\t\treference value: "+f.get(object).getClass().getSimpleName()+", "+f.get(object).getClass().hashCode());
-//				
-//			}
-//			else if (recursive) {
-//				
-//			}
-		}
-		
-		inspected.add(classObject);
-		//run inspect on the queue
-		if (Queue.isEmpty() == false) {
-			Object o= Queue.get(0);
-			Queue.remove(0);
-			inspect(o,recursive);
-		}
-			
-	
-		
 	}
-	private <T> void display_fieldArray(Object arr,Class<T> type) {
+	
+
+	private void display_fieldArray(Object arr) {
 		int current_index =0;
-		ArrayList<T> array = new ArrayList<T>();
+		Class typeofarr = arr.getClass().getComponentType();
+		int length= Array.getLength(arr);
 		
-		array =(arr);
+//		Object[] array =  Array.newInstance(typeofarr, length) ;
 		
-		Object[] array =(Object[]) arr ;
-		S
 		for (int i =0; i <array.length; i++ ) {
 		
 			System.out.print(array[i]);
@@ -110,9 +122,6 @@ public class Inspector {
 			if (current_index != (array.length-1) ) {
 				System.out.print(",");
 			}
-			
-
-				
 			else;
 			current_index++;
 		}
@@ -129,8 +138,6 @@ public class Inspector {
 			if (current_index != (array.length-1) ) {
 				System.out.print(",");
 			}
-			
-
 				
 			else;
 			current_index++;
