@@ -114,6 +114,7 @@ public class Inspector {
 			}
 		}
 	}
+	//use to determine how to interface with different object type, esp. array and non-array
 	private void recursiveHelper(Object obj) {
 		if (obj != null) {
 			if(obj.getClass().isPrimitive())
@@ -128,7 +129,7 @@ public class Inspector {
 			
 		else;
 	}
-
+	//displaying array contents
 	private void display_fieldArray(Object arr) {
 		int current_index =0;
 		Class typeofarr = arr.getClass().getComponentType();
@@ -146,7 +147,7 @@ public class Inspector {
 		}
 		System.out.println("}");
 	}
-	
+	//handler the returned array of getmethods/constructors/interfaces
 	private void return_handler(Class[] array) {
 		int current_index =0;
 		System.out.print("(");
