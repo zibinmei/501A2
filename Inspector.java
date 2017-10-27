@@ -6,46 +6,49 @@ import java.util.ArrayList;
 
 
 public class Inspector {
-	private List<Class> inspected = new ArrayList<>();
-	private List<Object> Queue = new ArrayList<>();
+	private List<Class> inspected ;
+	private List<Object> Queue ;
 	static final boolean CHECK_PRIMITIVE =false;
 	private Object object =  null;
 	private Class classObject =null;
 	
+	public Inspector() {
+		inspected = new ArrayList<>();
+		Queue = new ArrayList<>();
+		object =  null;
+		classObject =null;
+	}
+	
 	public void inspect(Object obj,boolean recursive) throws Exception, IllegalArgumentException, IllegalAccessException {
 		object = obj;
 		classObject= obj.getClass();
-		inspected.add(classObject);
-
 		
+		inspected.add(classObject);
 		System.out.println("Name of declaring class: "+classObject.getName());
 		System.out.println("Name of immediate super class: "+ classObject.getSuperclass().getName());
 		getAllInterfaces();
 		getAllMethods();
 		getAllConstructor();
 		getAllFields(recursive);
+		field_inspector(recursive);
 		
-	
-		inspected.add(classObject);
+		Class[] Interfaces = classObject.getInterfaces();
+		//print superclass info
 		if (classObject.getSuperclass() !=null)
-			inspectSC(classObject.getSuperclass(),recursive);
+			inspect(classObject.getSuperclass(),recursive);
+		//print interface info
+		for (Class i : Interfaces) 
+			inspect(i,recursive);
 		//run inspect on the queue
-		if (Queue.isEmpty() == false) {
-			Object o= Queue.get(0);
-			Queue.remove(0);
-			if(inspected.contains(o.getClass()) == false) {
-				System.out.println("######################################");
-				inspect(o,recursive);
-			}
-		}
-			
+
 	}
 	
-	public void inspectSC(Class c,boolean recursive) throws Exception, IllegalArgumentException, IllegalAccessException {
+	public void inspect(Class c,boolean recursive) throws Exception, IllegalArgumentException, IllegalAccessException {
+
 		classObject= c;
 		object = null;
 		inspected.add(classObject);
-		System.out.println("######################################");
+		System.out.println("+++++++++++++++++++++++++++++++++++++");
 
 		System.out.println("Name of declaring class: "+classObject.getName());
 		if (classObject.getSuperclass() !=null)
@@ -56,21 +59,16 @@ public class Inspector {
 		getAllMethods();
 		getAllConstructor();
 		getAllFields(recursive);
-		
-		inspected.add(classObject);
-		if (classObject.getSuperclass() !=null)
-			inspectSC(classObject.getSuperclass(),recursive);
-
 		//run inspect on the queue
-		if (Queue.isEmpty() == false) {
-			Object o= Queue.get(0);
-			Queue.remove(0);
-			if(inspected.contains(o.getClass()) == false) {
-				System.out.println("######################################");
-				inspect(o,recursive);
-			}
-		}
-			
+		field_inspector(recursive);
+		
+		Class[] Interfaces = classObject.getInterfaces();
+		//print superclass info
+		if (classObject.getSuperclass() !=null)
+			inspect(classObject.getSuperclass(),recursive);
+		//print interface info
+		for (Class i : Interfaces) 
+			inspect(i,recursive);
 	}
 	//print out all interfaces
 	private void getAllInterfaces() {
@@ -148,6 +146,17 @@ public class Inspector {
 				else {
 					System.out.println("\t\tvalue: NULL");
 				}
+			}
+		}
+	}
+	//use to inspect field
+	private void field_inspector(boolean recursive) throws IllegalArgumentException, IllegalAccessException, Exception {
+		if (Queue.isEmpty() == false) {
+			Object o= Queue.get(0);
+			Queue.remove(0);
+			if(inspected.contains(o.getClass()) == false) {
+				System.out.println("######################################");
+				inspect(o,recursive);
 			}
 		}
 	}
