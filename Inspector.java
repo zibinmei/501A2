@@ -19,13 +19,10 @@ public class Inspector {
 		
 		System.out.println("Name of declaring class: "+classObject.getName());
 		System.out.println("Name of immediate super class: "+ classObject.getSuperclass().getName());
-		
 		getAllInterfaces();
 		getAllMethods();
 		getAllConstructor();
-		getAllFields();
-
-		
+		getAllFields(recursive);
 		
 		inspected.add(classObject);
 		//run inspect on the queue
@@ -38,8 +35,6 @@ public class Inspector {
 			}
 		}
 			
-	
-		
 	}
 	
 	//print out all interfaces
@@ -80,7 +75,7 @@ public class Inspector {
 		}
 	}
 	//print out all Fields
-	private void getAllFields() {
+	private void getAllFields(boolean recursive) throws IllegalArgumentException, IllegalAccessException {
 		Field[] fields= classObject.getDeclaredFields();
 		System.out.println("Fields: ");
 		for (Field f: fields) {
@@ -91,11 +86,12 @@ public class Inspector {
 			//field values 
 			if (f.get(object) != null) {
 				if (f.getType().isArray()) {
-
+					//print out array info
 					System.out.println("\t\tlength: "+Array.getLength(f.get(object)));
-					System.out.println("\t\tvalue: "+f.get(object).toString());
+					System.out.print("\t\tvalue: ");
+					display_fieldArray(f.get(object));
 					//reference value 
-					if (recursive && f.get(obj).getClass().getComponentType().isPrimitive()==false)
+					if (recursive && f.get(object).getClass().getComponentType().isPrimitive()==false)
 						Queue.add(f.get(object));
 					else 
 						System.out.println("\t\treference value: "+f.get(object).getClass().getSimpleName()+", "+f.get(object).getClass().hashCode());
@@ -115,6 +111,7 @@ public class Inspector {
 			else {
 				System.out.println("\t\tvalue: NULL");
 			}
+		}
 	}
 	
 
@@ -122,20 +119,18 @@ public class Inspector {
 		int current_index =0;
 		Class typeofarr = arr.getClass().getComponentType();
 		int length= Array.getLength(arr);
+		System.out.print("{");
+		for (int i =0; i <length; i++ ) {
 		
-//		Object[] array =  Array.newInstance(typeofarr, length) ;
-		
-		for (int i =0; i <array.length; i++ ) {
-		
-			System.out.print(array[i]);
+			System.out.print(Array.get(arr,i));
 
-			if (current_index != (array.length-1) ) {
+			if (current_index != (length-1) ) {
 				System.out.print(",");
 			}
 			else;
 			current_index++;
 		}
-		System.out.println(")");
+		System.out.println("}");
 	}
 	
 	private void arrayprinter(Class[] array) {
