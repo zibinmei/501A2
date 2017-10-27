@@ -16,6 +16,7 @@ public class Inspector {
 		object = obj;
 		classObject= obj.getClass();
 		inspected.add(classObject);
+
 		
 		System.out.println("Name of declaring class: "+classObject.getName());
 		System.out.println("Name of immediate super class: "+ classObject.getSuperclass().getName());
@@ -24,7 +25,10 @@ public class Inspector {
 		getAllConstructor();
 		getAllFields(recursive);
 		
+	
 		inspected.add(classObject);
+		if (classObject.getSuperclass() !=null)
+			inspectSC(classObject.getSuperclass(),recursive);
 		//run inspect on the queue
 		if (Queue.isEmpty() == false) {
 			Object o= Queue.get(0);
@@ -37,6 +41,37 @@ public class Inspector {
 			
 	}
 	
+	public void inspectSC(Class c,boolean recursive) throws Exception, IllegalArgumentException, IllegalAccessException {
+		classObject= c;
+		object = null;
+		inspected.add(classObject);
+		System.out.println("######################################");
+
+		System.out.println("Name of declaring class: "+classObject.getName());
+		if (classObject.getSuperclass() !=null)
+			System.out.println("Name of immediate super class: "+ classObject.getSuperclass().getName());
+		else
+			System.out.println("Name of immediate super class: ");
+		getAllInterfaces();
+		getAllMethods();
+		getAllConstructor();
+		getAllFields(recursive);
+		
+		inspected.add(classObject);
+		if (classObject.getSuperclass() !=null)
+			inspectSC(classObject.getSuperclass(),recursive);
+
+		//run inspect on the queue
+		if (Queue.isEmpty() == false) {
+			Object o= Queue.get(0);
+			Queue.remove(0);
+			if(inspected.contains(o.getClass()) == false) {
+				System.out.println("######################################");
+				inspect(o,recursive);
+			}
+		}
+			
+	}
 	//print out all interfaces
 	private void getAllInterfaces() {
 		Class[] interfaces =classObject.getInterfaces();
@@ -83,34 +118,36 @@ public class Inspector {
 			System.out.println("\t<"+f.getName()+">");
 			System.out.println("\t\ttype: "+f.getType().getSimpleName());
 			System.out.println("\t\tmodifiers: "+Modifier.toString(f.getModifiers()));
-			//field values 
-			if (f.get(object) != null) {
-				//print out array info
-				if (f.getType().isArray()) {
-					System.out.println("\t\tlength: "+Array.getLength(f.get(object)));
-					System.out.print("\t\tvalue: ");
-					display_fieldArray(f.get(object));
-					//reference value && recursive
-					if (recursive)
-						Queue.add(f.get(object));					
-					else 
-						System.out.println("\t\treference value: "+f.get(object).getClass().getSimpleName()+", "+f.get(object).getClass().hashCode());
-			
-				}
+			if (object !=null) {
+				//field values 
+				if (f.get(object) != null) {
+					//print out array info
+					if (f.getType().isArray()) {
+						System.out.println("\t\tlength: "+Array.getLength(f.get(object)));
+						System.out.print("\t\tvalue: ");
+						display_fieldArray(f.get(object));
+						//reference value && recursive
+						if (recursive)
+							Queue.add(f.get(object));					
+						else 
+							System.out.println("\t\treference value: "+f.get(object).getClass().getSimpleName()+", "+f.get(object).getClass().hashCode());
 				
-				//print out info for non array item
-				else {
-					System.out.println("\t\tvalue: "+f.get(object).toString());
-					//reference value && recursive
-					if (recursive)
-						recursiveHelper(f.get(object));
-					else
-						System.out.println("\t\treference value: "+f.get(object).getClass().getSimpleName()+", "+f.get(object).getClass().hashCode());
-			
+					}
+					
+					//print out info for non array item
+					else {
+						System.out.println("\t\tvalue: "+f.get(object).toString());
+						//reference value && recursive
+						if (recursive)
+							recursiveHelper(f.get(object));
+						else
+							System.out.println("\t\treference value: "+f.get(object).getClass().getSimpleName()+", "+f.get(object).getClass().hashCode());
+				
+					}
 				}
-			}
-			else {
-				System.out.println("\t\tvalue: NULL");
+				else {
+					System.out.println("\t\tvalue: NULL");
+				}
 			}
 		}
 	}
